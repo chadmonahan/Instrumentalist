@@ -11,6 +11,9 @@ struct NowPlayingView: View {
             contextLabel
             progressSection
             toggles
+            if model.isEditingSlot {
+                cancelButton
+            }
             transport
         }
         .frame(maxWidth: .infinity)
@@ -123,6 +126,20 @@ struct NowPlayingView: View {
                 .padding(.vertical, 10)
                 .padding(.horizontal, 22)
                 .background(selected ? Theme.ready : Color.clear, in: Capsule())
+        }
+        .buttonStyle(.plain)
+    }
+
+    // MARK: - Cancel edit
+
+    private var cancelButton: some View {
+        Button { model.cancelEdit() } label: {
+            Label("Cancel", systemImage: "xmark")
+                .font(.system(size: 22, weight: .bold, design: .rounded))
+                .foregroundStyle(.white)
+                .padding(.vertical, 12)
+                .padding(.horizontal, 32)
+                .background(Theme.idleFill, in: Capsule())
         }
         .buttonStyle(.plain)
     }

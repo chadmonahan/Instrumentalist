@@ -124,6 +124,13 @@ final class AppModel {
         loadCurrent()
     }
 
+    /// Discard a staged slot edit, reverting to the slot's committed value.
+    func cancelEdit() {
+        guard isEditingSlot else { return }
+        padBuffer = ""
+        loadCurrent()
+    }
+
     func setPlayNowType(_ type: HymnType) {
         playNowType = type
         loadCurrent()

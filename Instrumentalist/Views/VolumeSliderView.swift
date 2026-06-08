@@ -8,8 +8,9 @@ struct VolumeSliderView: View {
 
     var body: some View {
         @Bindable var audio = model.audio
-        VStack(spacing: 10) {
+        HStack(spacing: 24) {
             outputIndicator
+                .frame(maxWidth: .infinity, alignment: .leading)
 
             HStack(spacing: 16) {
                 Image(systemName: "speaker.fill")
@@ -20,9 +21,10 @@ struct VolumeSliderView: View {
                     .foregroundStyle(.white.opacity(0.7))
             }
             .font(.system(size: 24, weight: .semibold))
-            .padding(.horizontal, 8)
-            .frame(height: 44)
+            .frame(maxWidth: .infinity)
         }
+        .padding(.horizontal, 8)
+        .frame(height: 48)
     }
 
     private var outputIndicator: some View {
@@ -32,10 +34,9 @@ struct VolumeSliderView: View {
             Text(external ? "Output: \(model.audio.outputRouteName)"
                           : "iPad speaker — not on PA")
                 .lineLimit(1)
-            Spacer()
+                .minimumScaleFactor(0.7)
         }
         .font(.system(size: 16, weight: .bold, design: .rounded))
         .foregroundStyle(external ? Theme.ready : Theme.editing)
-        .padding(.horizontal, 8)
     }
 }

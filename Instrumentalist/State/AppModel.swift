@@ -55,13 +55,6 @@ final class AppModel {
         return !padBuffer.isEmpty
     }
 
-    /// Label for the commit button, e.g. "Set Opening". Nil when not applicable.
-    var commitLabel: String? {
-        guard let slot = activeSlot, isEditingSlot,
-              let n = Int(padBuffer), HymnCatalog.isValid(n) else { return nil }
-        return "Set \(slot.title)"
-    }
-
     /// Show the 1 / 2 version toggle only for Play Now hymns that have a v2.
     var showsVersionToggle: Bool {
         activeSlot == nil && (displayedNumber.map(HymnCatalog.hasSecondVersion) ?? false)
@@ -96,11 +89,16 @@ final class AppModel {
     // MARK: - Slot selection & editing
 
     func selectSlot(_ slot: ServiceSlot) {
-        // Re-tapping the active slot returns to Play Now.
         if activeSlot == slot {
-            activeSlot = nil
-            padBuffer = ""
-            loadCurrent()
+            // Re-tap confirms the edit (the slot button doubles as "Set"); with
+            // nothing staged it just returns to Play Now.
+            if isEditingSlot {
+                commitSlot()
+            } else {
+                activeSlot = nil
+                padBuffer = ""
+                loadCurrent()
+            }
             return
         }
         activeSlot = slot

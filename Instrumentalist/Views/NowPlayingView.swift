@@ -11,9 +11,6 @@ struct NowPlayingView: View {
             contextLabel
             progressSection
             toggles
-            if let label = model.commitLabel {
-                commitButton(label)
-            }
             transport
         }
         .frame(maxWidth: .infinity)
@@ -126,20 +123,6 @@ struct NowPlayingView: View {
                 .padding(.vertical, 10)
                 .padding(.horizontal, 22)
                 .background(selected ? Theme.ready : Color.clear, in: Capsule())
-        }
-        .buttonStyle(.plain)
-    }
-
-    // MARK: - Commit ("Set Opening")
-
-    private func commitButton(_ label: String) -> some View {
-        Button { model.commitSlot() } label: {
-            Text(label)
-                .font(.system(size: 24, weight: .heavy, design: .rounded))
-                .foregroundStyle(.black)
-                .padding(.vertical, 14)
-                .frame(maxWidth: .infinity)
-                .background(Theme.editing, in: RoundedRectangle(cornerRadius: 16))
         }
         .buttonStyle(.plain)
     }

@@ -34,9 +34,6 @@ final class AppModel {
     /// Selected version (1 or 2) for hymns that have a second rendition.
     private(set) var selectedVersion: Int = 1
 
-    /// Total runtime of the loaded prelude, when the prelude is current.
-    private(set) var preludeDuration: TimeInterval?
-
     init() {
         self.store = HymnStore()
         self.audio = AudioController()
@@ -160,11 +157,6 @@ final class AppModel {
         Task {
             let urls = await resolveCurrentURLs()
             audio.load(urls: urls)
-            if activeSlot == .prelude {
-                preludeDuration = await AudioController.totalDuration(of: urls)
-            } else {
-                preludeDuration = nil
-            }
         }
     }
 

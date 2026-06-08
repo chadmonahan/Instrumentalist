@@ -9,6 +9,7 @@ struct NowPlayingView: View {
         VStack(spacing: 18) {
             numberDisplay
             contextLabel
+            progressSection
             toggles
             if let label = model.commitLabel {
                 commitButton(label)
@@ -40,10 +41,8 @@ struct NowPlayingView: View {
         if let slot = model.activeSlot {
             switch slot {
             case .prelude:
-                if let d = model.preludeDuration, d > 0 {
-                    return "Prelude • \(timeString(d))"
-                }
-                return "Prelude"
+                let total = model.audio.totalDuration
+                return total > 0 ? "Prelude • \(timeString(total))" : "Prelude"
             case .postlude:
                 return "Postlude"
             default:
@@ -51,6 +50,42 @@ struct NowPlayingView: View {
             }
         }
         return "Play Now • \(model.playNowType == .piano ? "Piano" : "Choir")"
+    }
+
+    // MARK: - Progress (time played + remaining + bar)
+
+    @ViewBuilder
+    private var progressSection: some View {
+        if model.audio.hasLoadedItem {
+            VStack(spacing: 8) {
+                GeometryReader { geo in
+                    ZStack(alignment: .leading) {
+                        Capsule().fill(Theme.idleFill)
+                        Capsule().fill(Theme.ready)
+                            .frame(width: max(0, geo.size.width * model.audio.progress))
+                            .animation(.linear(duration: 0.2), value: model.audio.progress)
+                    }
+                }
+                .frame(height: 12)
+
+                HStack {
+                    Text(played)      // time played
+                    Spacer()
+                    Text(remaining)   // time remaining
+                }
+                .font(.system(size: 22, weight: .semibold, design: .rounded))
+                .monospacedDigit()
+                .foregroundStyle(.white.opacity(0.8))
+            }
+        }
+    }
+
+    private var played: String {
+        model.audio.hasTiming ? timeString(model.audio.elapsed) : "--:--"
+    }
+
+    private var remaining: String {
+        model.audio.hasTiming ? "-" + timeString(model.audio.remaining) : "--:--"
     }
 
     // MARK: - Toggles

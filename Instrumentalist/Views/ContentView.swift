@@ -16,6 +16,7 @@ struct ContentView: View {
                         VStack(spacing: 16) {
                             NowPlayingView()
                             NumberPadView()
+                            VolumeSliderView()
                         }
                     }
                 } else {
@@ -24,6 +25,7 @@ struct ContentView: View {
                             .frame(height: min(max(geo.size.height * 0.14, 110), 150))
                         NowPlayingView()
                         NumberPadView()
+                        VolumeSliderView()
                     }
                 }
             }

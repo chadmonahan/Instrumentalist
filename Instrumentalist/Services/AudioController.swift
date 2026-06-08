@@ -31,6 +31,12 @@ final class AudioController {
     /// Fraction played, 0...1.
     var progress: Double { totalDuration > 0 ? min(1, max(0, elapsed / totalDuration)) : 0 }
 
+    /// Name of the current audio output (e.g. "USB Audio", "Speaker").
+    private(set) var outputRouteName: String = "—"
+    /// True when audio is routed to an external output (USB / HDMI / headphones /
+    /// Bluetooth) rather than the iPad's built-in speaker — i.e. it's reaching the PA.
+    private(set) var isExternalOutput: Bool = false
+
     @ObservationIgnored private let player = AVQueuePlayer()
     @ObservationIgnored private var currentURLs: [URL] = []
     @ObservationIgnored private var itemDurations: [TimeInterval] = []
@@ -42,13 +48,65 @@ final class AudioController {
         player.actionAtItemEnd = .advance
         player.volume = Float(volume)
         addPeriodicObserver()
+        observeAudioSession()
+        updateRoute()
     }
 
     private func configureSession() {
         let session = AVAudioSession.sharedInstance()
-        // .playback so audio plays through the mute switch and continues in the background.
+        // .playback so audio plays through the mute switch and continues in the
+        // background. The system auto-routes to a connected USB-C audio device
+        // (USB output outranks the built-in speaker), so output reaches the PA
+        // with no extra configuration.
         try? session.setCategory(.playback, mode: .default)
         try? session.setActive(true)
+    }
+
+    // MARK: - Output routing (USB-C / PA)
+
+    private func observeAudioSession() {
+        let nc = NotificationCenter.default
+        nc.addObserver(forName: AVAudioSession.routeChangeNotification, object: nil, queue: .main) { [weak self] _ in
+            Task { @MainActor in self?.updateRoute() }
+        }
+        nc.addObserver(forName: AVAudioSession.interruptionNotification, object: nil, queue: .main) { [weak self] note in
+            Task { @MainActor in self?.handleInterruption(note) }
+        }
+    }
+
+    /// Refresh the published output-route info after a route change.
+    private func updateRoute() {
+        let route = AVAudioSession.sharedInstance().currentRoute
+        guard let output = route.outputs.first else {
+            outputRouteName = "None"
+            isExternalOutput = false
+            return
+        }
+        outputRouteName = output.portName
+        let builtIn: Set<AVAudioSession.Port> = [.builtInSpeaker, .builtInReceiver]
+        isExternalOutput = !builtIn.contains(output.portType)
+    }
+
+    /// Pause on interruption (Siri, calls); resume only if the system says we may.
+    /// If the adapter is unplugged mid-playback iOS pauses automatically — we do
+    /// NOT auto-resume onto the iPad speaker, so a hymn never blasts out the
+    /// tablet by accident.
+    private func handleInterruption(_ note: Notification) {
+        guard let info = note.userInfo,
+              let raw = info[AVAudioSessionInterruptionTypeKey] as? UInt,
+              let type = AVAudioSession.InterruptionType(rawValue: raw) else { return }
+        switch type {
+        case .began:
+            isPlaying = false
+        case .ended:
+            try? AVAudioSession.sharedInstance().setActive(true)
+            if let optRaw = info[AVAudioSessionInterruptionOptionKey] as? UInt,
+               AVAudioSession.InterruptionOptions(rawValue: optRaw).contains(.shouldResume) {
+                player.play()
+            }
+        @unknown default:
+            break
+        }
     }
 
     private func addPeriodicObserver() {

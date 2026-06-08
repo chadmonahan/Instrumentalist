@@ -1,12 +1,20 @@
 import Foundation
+import Observation
 
 /// Manages the short postlude clips bundled inside the app. Clips live in
-/// `Resources/Postludes/` and are played in a simple rotation: each time the
-/// postlude is selected anew, the library advances to the next clip.
+/// `Resources/Postludes/` and play in a simple rotation: each time the postlude
+/// is freshly selected, the library advances to the next clip.
+///
+/// Clip files are named like `hdhymn215-post.mp3`; the embedded number is the
+/// hymn number, surfaced as `currentNumber` for display.
 @MainActor
+@Observable
 final class PostludeLibrary {
-    private let clips: [URL]
+    @ObservationIgnored private let clips: [URL]
+    /// Index of the clip currently queued / loaded.
     private var index = 0
+    /// Becomes true after the first selection so we only advance on *subsequent* ones.
+    private var primed = false
 
     /// Audio extensions we'll accept for bundled postlude clips.
     private static let audioExtensions = ["mp3", "m4a", "wav", "caf", "aif", "aiff"]
@@ -16,10 +24,8 @@ final class PostludeLibrary {
         for ext in Self.audioExtensions {
             found += bundle.urls(forResourcesWithExtension: ext, subdirectory: nil) ?? []
         }
-        // Stable, predictable rotation order.
+        // Stable, predictable rotation order (natural sort: hdhymn80 < hdhymn215).
         clips = found.sorted { $0.lastPathComponent.localizedStandardCompare($1.lastPathComponent) == .orderedAscending }
-        // Start one before the first clip so the first `advance()` lands on clip 0.
-        index = clips.isEmpty ? 0 : clips.count - 1
     }
 
     var hasClips: Bool { !clips.isEmpty }
@@ -31,11 +37,28 @@ final class PostludeLibrary {
         return clips[index % clips.count]
     }
 
-    /// Advance to the next clip in rotation and return it.
+    /// Hymn number parsed from the current clip's filename, e.g. 215 from
+    /// `hdhymn215-post.mp3`. Nil if the name has no number.
+    var currentNumber: Int? { Self.number(from: current) }
+
+    /// Queue the next clip for playback and return it. The first call keeps the
+    /// first clip; each later call advances the rotation by one.
     @discardableResult
-    func advance() -> URL? {
+    func selectForPlayback() -> URL? {
         guard !clips.isEmpty else { return nil }
-        index = (index + 1) % clips.count
+        if primed { index = (index + 1) % clips.count }
+        primed = true
         return current
+    }
+
+    /// First contiguous run of digits in the file's base name.
+    private static func number(from url: URL?) -> Int? {
+        guard let stem = url?.deletingPathExtension().lastPathComponent else { return nil }
+        var digits = ""
+        for ch in stem {
+            if ch.isNumber { digits.append(ch) }
+            else if !digits.isEmpty { break }
+        }
+        return Int(digits)
     }
 }

@@ -41,6 +41,7 @@ struct SlotButton: View {
             )
         }
         .buttonStyle(.plain)
+        .disabled(state == .disabled)
     }
 
     /// Secondary line under the title (non-editing state; editing is handled inline).
@@ -55,6 +56,7 @@ struct SlotButton: View {
             return nums.isEmpty ? "—" : nums.map(String.init).joined(separator: " · ")
 
         case .postlude:
+            if let n = model.postlude.currentNumber { return "\(n)" }
             return model.postlude.hasClips ? "rotation" : "no clips"
         }
     }

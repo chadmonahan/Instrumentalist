@@ -3,10 +3,11 @@ import Observation
 
 /// Visual state of a slot or play button, mapped to a color in `Theme`.
 enum ControlState {
-    case unset       // red   — nothing assigned / error
+    case unset       // red    — nothing assigned / error
     case editing     // yellow — being edited on the pad
     case downloading // yellow — fetching audio
     case ready       // green  — assigned and playable
+    case disabled    // gray   — not available yet (e.g. prelude with no queued hymns)
 }
 
 /// The single source of truth for the whole screen. Owns the services and derives
@@ -45,7 +46,10 @@ final class AppModel {
     /// The large number shown above the pad, or nil if nothing is selected.
     var displayedNumber: Int? {
         if let n = Int(padBuffer) { return n }
-        if let slot = activeSlot, slot.isProgrammable { return slotNumbers[slot] }
+        if let slot = activeSlot {
+            if slot == .postlude { return postlude.currentNumber }
+            if slot.isProgrammable { return slotNumbers[slot] }
+        }
         return nil
     }
 
@@ -104,7 +108,7 @@ final class AppModel {
         activeSlot = slot
         padBuffer = ""
         selectedVersion = 1
-        if slot == .postlude { postlude.advance() } // rotate to the next clip on each selection
+        if slot == .postlude { postlude.selectForPlayback() } // queue/advance the rotation
         loadCurrent()
     }
 
@@ -202,7 +206,7 @@ final class AppModel {
 
         case .prelude:
             let numbers = ServiceSlot.programmable.compactMap { slotNumbers[$0] }
-            guard !numbers.isEmpty else { return .unset }
+            guard !numbers.isEmpty else { return .disabled }
             let states = numbers.map { store.state(for: Hymn(number: $0, type: .piano)) }
             if states.contains(.downloading) { return .downloading }
             if states.contains(.failed) { return .unset }

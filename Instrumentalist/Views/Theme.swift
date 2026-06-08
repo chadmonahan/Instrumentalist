@@ -7,6 +7,7 @@ enum Theme {
     static let ready    = Color(red: 0.18, green: 0.72, blue: 0.35) // green
     static let unset    = Color(red: 0.80, green: 0.18, blue: 0.18) // red
     static let editing  = Color(red: 0.92, green: 0.78, blue: 0.18) // yellow
+    static let disabled = Color(white: 0.20)                        // gray — not available
 
     static let idleFill = Color(white: 0.16)
     static let activeRing = Color.white
@@ -16,6 +17,7 @@ enum Theme {
         case .unset:                   return unset
         case .editing, .downloading:   return editing
         case .ready:                   return ready
+        case .disabled:                return disabled
         }
     }
 
@@ -23,6 +25,7 @@ enum Theme {
     static func textColor(for state: ControlState) -> Color {
         switch state {
         case .editing, .downloading: return .black
+        case .disabled:              return Color(white: 0.45)
         default:                     return .white
         }
     }

@@ -1,0 +1,12 @@
+# Xcode / build
+*.xcodeproj
+build/
+DerivedData/
+*.xcuserstate
+xcuserdata/
+
+# Local machine config
+Local.xcconfig
+
+# macOS
+.DS_Store

@@ -31,7 +31,13 @@ struct NumberPadView: View {
         case .back:
             padButton(label: "⌫") { model.backspace() }
         case .blank:
-            Color.clear.frame(maxWidth: .infinity, maxHeight: .infinity)
+            // Holds the 1st/2nd "second tune" toggle when the keyed hymn has one;
+            // otherwise an empty cell (keeps the grid stable).
+            if model.showsVersionToggle {
+                versionCell
+            } else {
+                Color.clear.frame(maxWidth: .infinity, maxHeight: .infinity)
+            }
         }
     }
 
@@ -42,6 +48,27 @@ struct NumberPadView: View {
                 .foregroundStyle(.white)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .background(Theme.idleFill, in: RoundedRectangle(cornerRadius: 18))
+        }
+        .buttonStyle(.plain)
+    }
+
+    /// "1st | 2nd" tune selector shown in the otherwise-empty pad cell.
+    private var versionCell: some View {
+        HStack(spacing: 0) {
+            versionHalf("1st", version: 1)
+            versionHalf("2nd", version: 2)
+        }
+        .background(Theme.idleFill, in: RoundedRectangle(cornerRadius: 18))
+    }
+
+    private func versionHalf(_ label: String, version: Int) -> some View {
+        let selected = model.selectedVersion == version
+        return Button { model.setVersion(version) } label: {
+            Text(label)
+                .font(.system(size: 30, weight: .heavy, design: .rounded))
+                .foregroundStyle(selected ? .black : .white)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .background(selected ? Theme.ready : Color.clear, in: RoundedRectangle(cornerRadius: 18))
         }
         .buttonStyle(.plain)
     }

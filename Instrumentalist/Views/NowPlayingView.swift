@@ -6,14 +6,11 @@ struct NowPlayingView: View {
     @Environment(AppModel.self) private var model
 
     var body: some View {
-        VStack(spacing: 18) {
+        VStack(spacing: 12) {
             numberDisplay
             contextLabel
-            progressSection
             toggles
-            if model.isEditingSlot {
-                cancelButton
-            }
+            progressSection
             transport
         }
         .frame(maxWidth: .infinity)
@@ -22,13 +19,22 @@ struct NowPlayingView: View {
     // MARK: - Number
 
     private var numberDisplay: some View {
-        Text(model.displayedNumber.map(String.init) ?? "—")
-            .font(.system(size: 120, weight: .heavy, design: .rounded))
-            .foregroundStyle(.white)
-            .lineLimit(1)
-            .minimumScaleFactor(0.5)
-            .contentTransition(.numericText())
-            .animation(.snappy, value: model.displayedNumber)
+        HStack(alignment: .center, spacing: 14) {
+            Text(model.displayedNumber.map(String.init) ?? "—")
+                .font(.system(size: 120, weight: .heavy, design: .rounded))
+                .foregroundStyle(.white)
+                .lineLimit(1)
+                .minimumScaleFactor(0.5)
+                .contentTransition(.numericText())
+                .animation(.snappy, value: model.displayedNumber)
+            if model.showsVersionToggle {
+                Text(model.selectedVersion == 2 ? "2nd" : "1st")
+                    .font(.system(size: 42, weight: .heavy, design: .rounded))
+                    .foregroundStyle(Theme.ready)
+                    .contentTransition(.numericText())
+                    .animation(.snappy, value: model.selectedVersion)
+            }
+        }
     }
 
     private var contextLabel: some View {
@@ -54,43 +60,44 @@ struct NowPlayingView: View {
 
     // MARK: - Progress (time played + remaining + bar)
 
-    @ViewBuilder
+    /// Always present (keeps layout stable); grayed out when nothing is loaded.
     private var progressSection: some View {
-        if model.audio.hasLoadedItem {
-            VStack(spacing: 8) {
-                GeometryReader { geo in
-                    ZStack(alignment: .leading) {
-                        Capsule().fill(Theme.idleFill)
-                        Capsule().fill(Theme.ready)
-                            .frame(width: max(0, geo.size.width * model.audio.progress))
-                            .animation(.linear(duration: 0.2), value: model.audio.progress)
-                    }
+        let active = model.audio.hasLoadedItem
+        return VStack(spacing: 8) {
+            GeometryReader { geo in
+                ZStack(alignment: .leading) {
+                    Capsule().fill(Theme.idleFill)
+                    Capsule().fill(Theme.ready)
+                        .frame(width: max(0, geo.size.width * model.audio.progress))
+                        .animation(.linear(duration: 0.2), value: model.audio.progress)
                 }
-                .frame(height: 12)
-
-                HStack {
-                    Text(played)      // time played
-                    Spacer()
-                    Text(remaining)   // time remaining
-                }
-                .font(.system(size: 22, weight: .semibold, design: .rounded))
-                .monospacedDigit()
-                .foregroundStyle(.white.opacity(0.8))
             }
+            .frame(height: 12)
+
+            HStack {
+                Text(played)      // time played
+                Spacer()
+                Text(remaining)   // time remaining
+            }
+            .font(.system(size: 22, weight: .semibold, design: .rounded))
+            .monospacedDigit()
+            .foregroundStyle(.white.opacity(0.8))
         }
+        .opacity(active ? 1 : 0.35)
     }
 
     private var played: String {
-        model.audio.hasTiming ? timeString(model.audio.elapsed) : "--:--"
+        model.audio.hasTiming ? timeString(model.audio.elapsed) : "0:00"
     }
 
     private var remaining: String {
-        model.audio.hasTiming ? "-" + timeString(model.audio.remaining) : "--:--"
+        model.audio.hasTiming ? "-" + timeString(model.audio.remaining) : "0:00"
     }
 
     // MARK: - Toggles
 
-    @ViewBuilder
+    /// Fixed height so showing/hiding the Piano/Choir toggle doesn't reflow the
+    /// column. (The 1st/2nd "second tune" toggle lives in the number pad.)
     private var toggles: some View {
         HStack(spacing: 12) {
             if model.showsTypeToggle {
@@ -99,14 +106,8 @@ struct NowPlayingView: View {
                     model.setPlayNowType($0 ? .piano : .choir)
                 }
             }
-            if model.showsVersionToggle {
-                segToggle(left: "1", right: "2",
-                          isLeft: model.selectedVersion == 1) {
-                    model.setVersion($0 ? 1 : 2)
-                }
-            }
         }
-        .frame(height: model.showsTypeToggle || model.showsVersionToggle ? nil : 0)
+        .frame(height: 48)
     }
 
     private func segToggle(left: String, right: String, isLeft: Bool,
@@ -130,32 +131,15 @@ struct NowPlayingView: View {
         .buttonStyle(.plain)
     }
 
-    // MARK: - Cancel edit
-
-    private var cancelButton: some View {
-        Button { model.cancelEdit() } label: {
-            Label("Cancel", systemImage: "xmark")
-                .font(.system(size: 22, weight: .bold, design: .rounded))
-                .foregroundStyle(.white)
-                .padding(.vertical, 12)
-                .padding(.horizontal, 32)
-                .background(Theme.idleFill, in: Capsule())
-        }
-        .buttonStyle(.plain)
-    }
-
     // MARK: - Transport
 
     private var transport: some View {
         HStack(spacing: 16) {
-            Button { model.restart() } label: {
-                Image(systemName: "arrow.counterclockwise")
-                    .font(.system(size: 34, weight: .bold))
-                    .foregroundStyle(.white)
-                    .frame(width: 84, height: 84)
-                    .background(Theme.idleFill, in: Circle())
-            }
-            .buttonStyle(.plain)
+            // Reset (left, always) · Play (center, constant size) · Cancel (right).
+            // Cancel backs out: discards a staged edit, or exits a selected slot
+            // to Play Now. Its slot is always reserved so the play button never
+            // resizes and nothing jumps.
+            circleButton(system: "arrow.counterclockwise") { model.restart() }
 
             Button { model.togglePlayPause() } label: {
                 Image(systemName: playIcon)
@@ -166,7 +150,23 @@ struct NowPlayingView: View {
                     .background(Theme.color(for: model.playState), in: RoundedRectangle(cornerRadius: 22))
             }
             .buttonStyle(.plain)
+
+            circleButton(system: "xmark") { model.cancelOrExit() }
+                .opacity(model.canCancel ? 1 : 0)
+                .allowsHitTesting(model.canCancel)
         }
+    }
+
+    /// A circular transport button (Reset / Cancel), sized to match.
+    private func circleButton(system: String, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            Image(systemName: system)
+                .font(.system(size: 34, weight: .bold))
+                .foregroundStyle(.white)
+                .frame(width: 84, height: 84)
+                .background(Theme.idleFill, in: Circle())
+        }
+        .buttonStyle(.plain)
     }
 
     private var playIcon: String {

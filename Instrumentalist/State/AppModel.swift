@@ -29,6 +29,9 @@ final class AppModel {
     /// Committed hymn numbers for the three programmable slots.
     private(set) var slotNumbers: [ServiceSlot: Int] = [:]
 
+    /// Chosen tune version (1 or 2) per programmable slot. Defaults to 1.
+    private(set) var slotVersions: [ServiceSlot: Int] = [:]
+
     /// Rendition chosen for a Play Now hymn (piano vs choir toggle).
     private(set) var playNowType: HymnType = .piano
 
@@ -59,9 +62,9 @@ final class AppModel {
         return !padBuffer.isEmpty
     }
 
-    /// Show the 1 / 2 version toggle only for Play Now hymns that have a v2.
+    /// Show the 1st / 2nd "second tune" toggle whenever the displayed number has one.
     var showsVersionToggle: Bool {
-        activeSlot == nil && (displayedNumber.map(HymnCatalog.hasSecondVersion) ?? false)
+        displayedNumber.map(HymnCatalog.hasSecondVersion) ?? false
     }
 
     /// Show the Piano / Choir toggle only in Play Now.
@@ -96,18 +99,12 @@ final class AppModel {
         if activeSlot == slot {
             // Re-tap confirms the edit (the slot button doubles as "Set"); with
             // nothing staged it just returns to Play Now.
-            if isEditingSlot {
-                commitSlot()
-            } else {
-                activeSlot = nil
-                padBuffer = ""
-                loadCurrent()
-            }
+            if isEditingSlot { commitSlot() } else { deselect() }
             return
         }
         activeSlot = slot
         padBuffer = ""
-        selectedVersion = 1
+        selectedVersion = slotVersions[slot] ?? 1
         if slot == .postlude { postlude.selectForPlayback() } // queue/advance the rotation
         loadCurrent()
     }
@@ -116,11 +113,13 @@ final class AppModel {
     func commitSlot() {
         guard let slot = activeSlot, slot.isProgrammable,
               let n = Int(padBuffer), HymnCatalog.isValid(n) else { return }
+        let v = HymnCatalog.hasSecondVersion(n) ? selectedVersion : 1
         slotNumbers[slot] = n
+        slotVersions[slot] = v
         padBuffer = ""
         // Prefetch both renditions: choir for the slot itself, piano for the prelude.
-        store.prefetch(Hymn(number: n, type: .choir))
-        store.prefetch(Hymn(number: n, type: .piano))
+        store.prefetch(Hymn(number: n, type: .choir, version: v))
+        store.prefetch(Hymn(number: n, type: .piano, version: v))
         loadCurrent()
     }
 
@@ -131,6 +130,23 @@ final class AppModel {
         loadCurrent()
     }
 
+    /// Clear the current slot selection and return to Play Now.
+    private func deselect() {
+        activeSlot = nil
+        padBuffer = ""
+        loadCurrent()
+    }
+
+    /// True whenever the back-out (✕) control should be available: a slot is
+    /// selected and/or being edited.
+    var canCancel: Bool { activeSlot != nil }
+
+    /// Back out one level: discard a staged edit, otherwise exit the selected
+    /// slot back to Play Now.
+    func cancelOrExit() {
+        if isEditingSlot { cancelEdit() } else { deselect() }
+    }
+
     func setPlayNowType(_ type: HymnType) {
         playNowType = type
         loadCurrent()
@@ -138,6 +154,12 @@ final class AppModel {
 
     func setVersion(_ version: Int) {
         selectedVersion = version
+        // If a committed (non-editing) slot is current, switch its tune live.
+        if let slot = activeSlot, slot.isProgrammable, !isEditingSlot, let n = slotNumbers[slot] {
+            slotVersions[slot] = version
+            store.prefetch(Hymn(number: n, type: .choir, version: version))
+            store.prefetch(Hymn(number: n, type: .piano, version: version))
+        }
         loadCurrent()
     }
 
@@ -180,8 +202,8 @@ final class AppModel {
         case .prelude:
             var urls: [URL] = []
             for slot in ServiceSlot.programmable {
-                if let n = slotNumbers[slot] {
-                    urls += await cached(Hymn(number: n, type: .piano))
+                if let hymn = slotHymn(slot, type: .piano) {
+                    urls += await cached(hymn)
                 }
             }
             return urls
@@ -190,9 +212,15 @@ final class AppModel {
             return postlude.current.map { [$0] } ?? []
 
         case .some(let slot): // opening / memorial / closing
-            guard let n = slotNumbers[slot] else { return [] }
-            return await cached(Hymn(number: n, type: slot.mainType))
+            guard let hymn = slotHymn(slot, type: slot.mainType) else { return [] }
+            return await cached(hymn)
         }
+    }
+
+    /// A slot's hymn for a given rendition, honoring its chosen tune version.
+    private func slotHymn(_ slot: ServiceSlot, type: HymnType) -> Hymn? {
+        guard let n = slotNumbers[slot] else { return nil }
+        return Hymn(number: n, type: type, version: slotVersions[slot] ?? 1)
     }
 
     /// Ensure a hymn is cached and return its URL (empty on failure).
@@ -208,13 +236,13 @@ final class AppModel {
 
         switch slot {
         case .opening, .memorial, .closing:
-            guard let n = slotNumbers[slot] else { return .unset }
-            return renditionState(Hymn(number: n, type: .choir))
+            guard let hymn = slotHymn(slot, type: .choir) else { return .unset }
+            return renditionState(hymn)
 
         case .prelude:
-            let numbers = ServiceSlot.programmable.compactMap { slotNumbers[$0] }
-            guard !numbers.isEmpty else { return .disabled }
-            let states = numbers.map { store.state(for: Hymn(number: $0, type: .piano)) }
+            let hymns = ServiceSlot.programmable.compactMap { slotHymn($0, type: .piano) }
+            guard !hymns.isEmpty else { return .disabled }
+            let states = hymns.map { store.state(for: $0) }
             if states.contains(.downloading) { return .downloading }
             if states.contains(.failed) { return .unset }
             return .ready
@@ -233,8 +261,8 @@ final class AppModel {
         case .prelude, .postlude:
             return slotState(activeSlot!)
         case .some(let slot):
-            guard let n = slotNumbers[slot] else { return .unset }
-            return renditionState(Hymn(number: n, type: slot.mainType))
+            guard let hymn = slotHymn(slot, type: slot.mainType) else { return .unset }
+            return renditionState(hymn)
         }
     }
 

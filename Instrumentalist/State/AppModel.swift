@@ -106,7 +106,20 @@ final class AppModel {
         padBuffer = ""
         selectedVersion = slotVersions[slot] ?? 1
         if slot == .postlude { postlude.selectForPlayback() } // queue/advance the rotation
+        applyVolumePreset(for: slot)
         loadCurrent()
+    }
+
+    /// EXPERIMENTAL (may change/be removed after testing): selecting a slot
+    /// presets the volume — Prelude/Postlude 50%, Opening/Memorial/Closing 80%.
+    /// Fires only on fresh selection, so manual slider adjustments stick after.
+    private func applyVolumePreset(for slot: ServiceSlot) {
+        let level: Double = (slot == .prelude || slot == .postlude) ? 0.5 : 0.8
+        #if targetEnvironment(simulator)
+        audio.volume = level          // sim has no system volume; drive the fallback slider
+        #else
+        SystemVolume.set(Float(level))
+        #endif
     }
 
     /// Commit the typed number into the active programmable slot ("Set Opening").

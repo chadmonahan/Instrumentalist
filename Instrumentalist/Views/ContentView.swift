@@ -1,15 +1,20 @@
 import SwiftUI
 
-/// The single screen. For now both orientations use one stacked layout: the five
-/// slot buttons across the top, then the now-playing area, number pad, and volume.
+/// The single screen. Five slot buttons across the top, then two columns:
+/// player (big number + progress + transport) on the left, number pad on the
+/// right. Output status + volume span the bottom.
 struct ContentView: View {
     var body: some View {
         GeometryReader { geo in
             VStack(spacing: 16) {
                 SlotColumnView(axis: .horizontal)
                     .frame(height: min(max(geo.size.height * 0.14, 110), 150))
-                NowPlayingView()
-                NumberPadView()
+                HStack(spacing: 24) {
+                    NowPlayingView()
+                        .frame(maxWidth: .infinity)
+                    NumberPadView()
+                        .frame(maxWidth: .infinity)
+                }
                 VolumeSliderView()
             }
             .padding(16)

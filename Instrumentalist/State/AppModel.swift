@@ -42,6 +42,48 @@ final class AppModel {
         self.store = HymnStore()
         self.audio = AudioController()
         self.postlude = PostludeLibrary()
+        audio.onFinished = { [weak self] in self?.advanceToNextItem() }
+        restoreLineup()
+    }
+
+    // MARK: - Persistence (the programmable lineup survives relaunch)
+
+    private let defaults = UserDefaults.standard
+    private static let numbersKey = "lineup.numbers"
+    private static let versionsKey = "lineup.versions"
+
+    /// Restore the saved Opening/Memorial/Closing numbers + versions, and prefetch
+    /// them so they're ready (a cache hit if they were already downloaded).
+    private func restoreLineup() {
+        if let saved = defaults.dictionary(forKey: Self.numbersKey) as? [String: Int] {
+            for (raw, n) in saved { if let slot = ServiceSlot(rawValue: raw) { slotNumbers[slot] = n } }
+        }
+        if let saved = defaults.dictionary(forKey: Self.versionsKey) as? [String: Int] {
+            for (raw, v) in saved { if let slot = ServiceSlot(rawValue: raw) { slotVersions[slot] = v } }
+        }
+        for slot in ServiceSlot.programmable {
+            guard let n = slotNumbers[slot] else { continue }
+            let v = slotVersions[slot] ?? 1
+            store.prefetch(Hymn(number: n, type: .choir, version: v))
+            store.prefetch(Hymn(number: n, type: .piano, version: v))
+        }
+    }
+
+    private func persistLineup() {
+        defaults.set(Dictionary(uniqueKeysWithValues: slotNumbers.map { ($0.key.rawValue, $0.value) }),
+                     forKey: Self.numbersKey)
+        defaults.set(Dictionary(uniqueKeysWithValues: slotVersions.map { ($0.key.rawValue, $0.value) }),
+                     forKey: Self.versionsKey)
+    }
+
+    /// When a service item finishes playing, advance the selection to the next
+    /// item in the lineup (Prelude → Opening → Memorial → Closing → Postlude),
+    /// loaded and ready but NOT played. No-op in Play Now or after the postlude.
+    private func advanceToNextItem() {
+        guard let current = activeSlot,
+              let idx = ServiceSlot.allCases.firstIndex(of: current),
+              idx + 1 < ServiceSlot.allCases.count else { return }
+        selectSlot(ServiceSlot.allCases[idx + 1])
     }
 
     // MARK: - Derived display
@@ -111,10 +153,12 @@ final class AppModel {
     }
 
     /// EXPERIMENTAL (may change/be removed after testing): selecting a slot
-    /// presets the volume — Prelude/Postlude 50%, Opening/Memorial/Closing 80%.
-    /// Fires only on fresh selection, so manual slider adjustments stick after.
+    /// presets the volume — Prelude/Postlude 60%, Opening/Memorial/Closing 90%.
+    /// Skipped while audio is playing (don't yank the level mid-hymn), and only
+    /// on fresh selection, so manual slider adjustments stick after.
     private func applyVolumePreset(for slot: ServiceSlot) {
-        let level: Double = (slot == .prelude || slot == .postlude) ? 0.5 : 0.8
+        guard !audio.isPlaying else { return }
+        let level: Double = (slot == .prelude || slot == .postlude) ? 0.6 : 0.9
         #if targetEnvironment(simulator)
         audio.volume = level          // sim has no system volume; drive the fallback slider
         #else
@@ -129,6 +173,7 @@ final class AppModel {
         let v = HymnCatalog.hasSecondVersion(n) ? selectedVersion : 1
         slotNumbers[slot] = n
         slotVersions[slot] = v
+        persistLineup()
         padBuffer = ""
         // Prefetch both renditions: choir for the slot itself, piano for the prelude.
         store.prefetch(Hymn(number: n, type: .choir, version: v))
@@ -170,6 +215,7 @@ final class AppModel {
         // If a committed (non-editing) slot is current, switch its tune live.
         if let slot = activeSlot, slot.isProgrammable, !isEditingSlot, let n = slotNumbers[slot] {
             slotVersions[slot] = version
+            persistLineup()
             store.prefetch(Hymn(number: n, type: .choir, version: version))
             store.prefetch(Hymn(number: n, type: .piano, version: version))
         }

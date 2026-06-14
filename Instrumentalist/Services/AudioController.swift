@@ -37,6 +37,9 @@ final class AudioController {
     /// Bluetooth) rather than the iPad's built-in speaker — i.e. it's reaching the PA.
     private(set) var isExternalOutput: Bool = false
 
+    /// Called when the whole loaded selection plays through to the end.
+    @ObservationIgnored var onFinished: (() -> Void)?
+
     @ObservationIgnored private let player = AVQueuePlayer()
     @ObservationIgnored private var currentURLs: [URL] = []
     @ObservationIgnored private var itemDurations: [TimeInterval] = []
@@ -170,7 +173,10 @@ final class AudioController {
         endObserver = NotificationCenter.default.addObserver(
             forName: .AVPlayerItemDidPlayToEndTime, object: lastItem, queue: .main
         ) { [weak self] _ in
-            Task { @MainActor in self?.isPlaying = false }
+            Task { @MainActor in
+                self?.isPlaying = false
+                self?.onFinished?()
+            }
         }
     }
 

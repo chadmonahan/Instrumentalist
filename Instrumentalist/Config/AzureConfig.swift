@@ -2,26 +2,23 @@ import Foundation
 
 /// Single source of truth for how hymn files are named and located in Azure.
 ///
-/// Verified live against the bucket on 2026-06-08:
-///   - piano356-1.mp3  -> 200
-///   - chior356-1.mp3  -> 200   (the blob name really is spelled "chior" — do not "fix" to "choir")
-///   - choir356-1.mp3  -> 404
+/// Verified live against the bucket:
+///   - Piano:  `piano356-1.mp3`             (e.g. piano356-1 / piano151-2)
+///   - Choir:  `H00356-1.mp3`               (H + 5-digit number + version; full
+///             coverage for hymns 1–438, with `-2` for the second-tune hymns)
+///
+/// (Choir previously used a `chior{n}-{v}.mp3` pattern with patchy coverage; the
+/// re-uploaded `H{NNNNN}-{v}.mp3` set replaces it and is complete.)
 enum AzureConfig {
     /// Base URL; final files live directly under this path.
     static let baseURL = URL(string: "https://chadmonahan.blob.core.windows.net/hymns/hymns/")!
 
-    /// Filename prefix per rendition. NOTE the intentional "chior" spelling — that is
-    /// the actual blob name in storage, confirmed by a live HEAD request.
-    static func prefix(for type: HymnType) -> String {
-        switch type {
-        case .piano: return "piano"
-        case .choir: return "chior"
-        }
-    }
-
-    /// e.g. `piano356-1.mp3`, `chior356-1.mp3`.
+    /// e.g. `piano356-1.mp3`, `H00356-1.mp3`.
     static func fileName(type: HymnType, number: Int, version: Int = 1) -> String {
-        "\(prefix(for: type))\(number)-\(version).mp3"
+        switch type {
+        case .piano: return "piano\(number)-\(version).mp3"
+        case .choir: return String(format: "H%05d-%d.mp3", number, version)
+        }
     }
 
     static func url(type: HymnType, number: Int, version: Int = 1) -> URL {

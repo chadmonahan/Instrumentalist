@@ -127,9 +127,10 @@ final class AppModel {
         if let slot = activeSlot, !slot.isProgrammable {
             activeSlot = nil
         }
-        guard padBuffer.count < 3 else { return }
-        if padBuffer.isEmpty && d == 0 { return } // no leading zero
-        padBuffer.append(String(d))
+        // Ignore presses that can't lead to a real hymn (out of range / leading 0).
+        let candidate = padBuffer + String(d)
+        guard HymnCatalog.isEnterablePrefix(candidate) else { return }
+        padBuffer = candidate
         selectedVersion = 1
         if activeSlot == nil { loadCurrent() } // keep Play Now ready to play
     }
@@ -203,11 +204,11 @@ final class AppModel {
     }
 
     /// True whenever the back-out (✕) control should be available: a slot is
-    /// selected and/or being edited.
-    var canCancel: Bool { activeSlot != nil }
+    /// selected/being edited, or a Play Now number has been keyed in.
+    var canCancel: Bool { activeSlot != nil || !padBuffer.isEmpty }
 
-    /// Back out one level: discard a staged edit, otherwise exit the selected
-    /// slot back to Play Now.
+    /// Back out one level: discard a staged edit, exit a selected slot, or clear
+    /// the keyed-in Play Now number — all the way back to an empty Play Now.
     func cancelOrExit() {
         if isEditingSlot { cancelEdit() } else { deselect() }
     }

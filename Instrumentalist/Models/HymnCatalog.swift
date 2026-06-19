@@ -3,9 +3,19 @@ import Foundation
 /// Static facts about the hymn collection that the app needs but can't derive
 /// from a file name alone.
 enum HymnCatalog {
-    /// Acceptable hymn numbers that can be keyed on the pad. Generous bounds —
-    /// a number that doesn't exist in storage simply fails to download and shows red.
-    static let numberRange = 1...999
+    /// Valid hymn numbers. The hymnal runs 1–438.
+    static let numberRange = 1...438
+
+    /// Whether `digits` could still become a valid hymn number — i.e. it's the
+    /// start of some number in `numberRange`, with no leading zero. Used to ignore
+    /// keypad presses that can't lead anywhere valid (e.g. a leading 0, "439", or a
+    /// 3rd digit after "44"). Note: any allowed buffer is itself already valid,
+    /// since 1…438 is contiguous.
+    static func isEnterablePrefix(_ digits: String) -> Bool {
+        guard let first = digits.first, first != "0",
+              digits.count <= String(numberRange.upperBound).count else { return false }
+        return numberRange.contains { String($0).hasPrefix(digits) }
+    }
 
     /// Hymns that also have a `-2.mp3` "second tune". When a number here is keyed,
     /// the pad exposes a `1st / 2nd` toggle. Just add the number to enable it.

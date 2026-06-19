@@ -112,6 +112,12 @@ final class AppModel {
     /// Show the Piano / Choir toggle only in Play Now.
     var showsTypeToggle: Bool { activeSlot == nil }
 
+    /// All three programmable slots have a hymn.
+    var isPreludeFull: Bool { ServiceSlot.programmable.allSatisfy { slotNumbers[$0] != nil } }
+
+    /// Show the prelude "hit play" countdown: prelude selected with a full lineup.
+    var showsPreludeCountdown: Bool { activeSlot == .prelude && isPreludeFull }
+
     var isPlayNow: Bool { activeSlot == nil }
 
     // MARK: - Pad input
@@ -138,6 +144,7 @@ final class AppModel {
     // MARK: - Slot selection & editing
 
     func selectSlot(_ slot: ServiceSlot) {
+        disarmAutoPlay() // any navigation cancels a pending auto-play
         if activeSlot == slot {
             // Re-tap confirms the edit (the slot button doubles as "Set"); with
             // nothing staged it just returns to Play Now.
@@ -222,9 +229,47 @@ final class AppModel {
         loadCurrent()
     }
 
+    // MARK: - Auto-play (start the prelude on schedule)
+
+    /// True while the prelude is armed to start itself at the "start by" moment.
+    private(set) var isAutoPlayArmed = false
+    @ObservationIgnored private var autoPlayTimer: Timer?
+
+    func toggleAutoPlay() {
+        isAutoPlayArmed ? disarmAutoPlay() : armAutoPlay()
+    }
+
+    private func armAutoPlay() {
+        guard showsPreludeCountdown else { return }
+        isAutoPlayArmed = true
+        autoPlayTimer?.invalidate()
+        autoPlayTimer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { [weak self] _ in
+            Task { @MainActor in self?.checkAutoPlay() }
+        }
+    }
+
+    func disarmAutoPlay() {
+        guard isAutoPlayArmed || autoPlayTimer != nil else { return }
+        isAutoPlayArmed = false
+        autoPlayTimer?.invalidate()
+        autoPlayTimer = nil
+    }
+
+    /// Once we reach the "start by" moment, auto-start the prelude (then disarm).
+    private func checkAutoPlay() {
+        guard isAutoPlayArmed, showsPreludeCountdown,
+              !audio.isPlaying, audio.totalDuration > 0 else { return }
+        let startBy = ServiceSchedule.nextStart(after: Date()).addingTimeInterval(-audio.totalDuration)
+        if Date() >= startBy {
+            disarmAutoPlay()
+            play()
+        }
+    }
+
     // MARK: - Transport
 
     func togglePlayPause() {
+        disarmAutoPlay() // manual interaction cancels a pending auto-play
         if audio.isPlaying { audio.pause() } else { play() }
     }
 
@@ -238,6 +283,7 @@ final class AppModel {
     }
 
     func restart() {
+        disarmAutoPlay()
         audio.restart()
     }
 

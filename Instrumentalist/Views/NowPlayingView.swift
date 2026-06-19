@@ -7,8 +7,12 @@ struct NowPlayingView: View {
 
     var body: some View {
         VStack(spacing: 12) {
-            numberDisplay
-            contextLabel
+            if model.showsPreludeCountdown {
+                preludeCountdown
+            } else {
+                numberDisplay
+                contextLabel
+            }
             toggles
             progressSection
             transport
@@ -41,6 +45,74 @@ struct NowPlayingView: View {
         Text(contextText)
             .font(.system(size: 22, weight: .semibold, design: .rounded))
             .foregroundStyle(.white.opacity(0.7))
+    }
+
+    // MARK: - Prelude countdown (hit play so it ends at 10:30)
+
+    private var preludeCountdown: some View {
+        TimelineView(.periodic(from: .now, by: 1)) { ctx in
+            let now = ctx.date
+            let duration = model.audio.totalDuration
+            let target = ServiceSchedule.nextStart(after: now)
+            let startBy = target.addingTimeInterval(-duration)
+            let secs = startBy.timeIntervalSince(now)
+            let ready = duration > 0
+            let armed = model.isAutoPlayArmed
+
+            VStack(spacing: 4) {
+                Text((!ready || secs > 0 ? (armed ? "AUTO-PLAY IN" : "PLAY IN") : "PLAY"))
+                    .font(.system(size: 22, weight: .bold, design: .rounded))
+                    .foregroundStyle(armed ? Theme.ready : .white.opacity(0.55))
+                Text(!ready ? "—" : (secs > 0 ? countdownString(secs) : "NOW"))
+                    .font(.system(size: 84, weight: .heavy, design: .rounded))
+                    .monospacedDigit()
+                    .foregroundStyle(armed || (ready && secs <= 0) ? Theme.ready : .white)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.5)
+                    .contentTransition(.numericText())
+                Text(ready
+                     ? "start \(clock(startBy))  ·  ends \(clock(target))"
+                     : "calculating prelude length…")
+                    .font(.system(size: 17, weight: .semibold, design: .rounded))
+                    .foregroundStyle(.white.opacity(0.55))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.6)
+                autoPlayButton(enabled: ready)
+                    .padding(.top, 6)
+            }
+            .animation(.snappy, value: armed)
+        }
+    }
+
+    private func autoPlayButton(enabled: Bool) -> some View {
+        let armed = model.isAutoPlayArmed
+        return Button { model.toggleAutoPlay() } label: {
+            HStack(spacing: 8) {
+                Image(systemName: armed ? "checkmark.circle.fill" : "bolt.fill")
+                Text(armed ? "Auto-play armed" : "Auto-play")
+            }
+            .font(.system(size: 18, weight: .bold, design: .rounded))
+            .foregroundStyle(armed ? .black : .white)
+            .padding(.vertical, 11)
+            .padding(.horizontal, 22)
+            .background(armed ? Theme.ready : Theme.idleFill, in: Capsule())
+        }
+        .buttonStyle(.plain)
+        .disabled(!enabled)
+        .opacity(enabled ? 1 : 0.5)
+    }
+
+    /// Countdown formatted h:mm:ss (drops the hours when under an hour).
+    private func countdownString(_ seconds: TimeInterval) -> String {
+        let s = Int(seconds.rounded())
+        let h = s / 3600, m = (s % 3600) / 60, sec = s % 60
+        return h > 0 ? String(format: "%d:%02d:%02d", h, m, sec)
+                     : String(format: "%d:%02d", m, sec)
+    }
+
+    /// Clock time like "10:21 AM".
+    private func clock(_ date: Date) -> String {
+        date.formatted(date: .omitted, time: .shortened)
     }
 
     private var contextText: String {

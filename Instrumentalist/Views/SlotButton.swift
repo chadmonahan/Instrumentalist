@@ -39,6 +39,9 @@ struct SlotButton: View {
                 RoundedRectangle(cornerRadius: 18)
                     .stroke(Theme.activeRing, lineWidth: isActive ? 4 : 0)
             )
+            // Recede the non-active buttons so the active one (vivid + white ring)
+            // clearly stands out even when several share the same green state.
+            .opacity(isActive ? 1 : 0.65)
         }
         .buttonStyle(.plain)
         .disabled(state == .disabled)

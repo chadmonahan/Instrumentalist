@@ -12,10 +12,8 @@ struct InstrumentalistApp: App {
                 .statusBarHidden(true)
                 .persistentSystemOverlays(.hidden)
                 .preferredColorScheme(.dark)
-                .onAppear {
-                    // Kiosk: never let the screen sleep during a service.
-                    UIApplication.shared.isIdleTimerDisabled = true
-                }
+                // Screen-sleep is now managed by AppModel: it forces the screen
+                // awake during use and lets the iPad sleep after ~60 min idle.
         }
     }
 }

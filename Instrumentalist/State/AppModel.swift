@@ -1,5 +1,6 @@
 import Foundation
 import Observation
+import UIKit
 
 /// Visual state of a slot or play button, mapped to a color in `Theme`.
 enum ControlState {
@@ -44,6 +45,54 @@ final class AppModel {
         self.postlude = PostludeLibrary()
         audio.onFinished = { [weak self] in self?.advanceToNextItem() }
         restoreLineup()
+        startSleepMonitor()
+    }
+
+    // MARK: - Inactivity / screen-sleep management
+
+    /// How long the screen may stay forced-on with no interaction (and nothing
+    /// playing) before we let the iPad sleep on its own. Reset by any touch.
+    private static let inactivityTimeout: TimeInterval = 60 * 60   // 60 minutes
+    @ObservationIgnored private var lastActivity = Date()
+    @ObservationIgnored private var sleepMonitor: Timer?
+    @ObservationIgnored private var screenKeptAwake = false
+
+    /// Flip the idle timer only when the awake/sleep state actually changes.
+    /// `registerActivity` runs on every interaction, so writing the UIKit flag
+    /// each event is needless main-thread churn — and a likely source of the
+    /// launch-time sluggishness.
+    private func keepScreenAwake(_ awake: Bool) {
+        guard awake != screenKeptAwake else { return }
+        screenKeptAwake = awake
+        UIApplication.shared.isIdleTimerDisabled = awake
+    }
+
+    /// Call on any user interaction — keeps the screen awake and resets the clock.
+    func registerActivity() {
+        lastActivity = Date()
+        keepScreenAwake(true)
+    }
+
+    /// Start the periodic monitor (called once at launch). Begins awake.
+    private func startSleepMonitor() {
+        keepScreenAwake(true)
+        sleepMonitor?.invalidate()
+        sleepMonitor = Timer.scheduledTimer(withTimeInterval: 30, repeats: true) { [weak self] _ in
+            Task { @MainActor in self?.evaluateSleep() }
+        }
+    }
+
+    /// Decide whether the screen may sleep yet. Never sleeps mid-hymn.
+    private func evaluateSleep() {
+        // While a hymn is actively playing, stay awake and treat it as activity
+        // so the countdown only starts once playback stops.
+        if audio.isPlaying {
+            lastActivity = Date()
+            keepScreenAwake(true)
+            return
+        }
+        let idle = Date().timeIntervalSince(lastActivity)
+        keepScreenAwake(idle < Self.inactivityTimeout)
     }
 
     // MARK: - Persistence (the programmable lineup survives relaunch)
@@ -115,14 +164,27 @@ final class AppModel {
     /// All three programmable slots have a hymn.
     var isPreludeFull: Bool { ServiceSlot.programmable.allSatisfy { slotNumbers[$0] != nil } }
 
-    /// Show the prelude "hit play" countdown: prelude selected with a full lineup.
-    var showsPreludeCountdown: Bool { activeSlot == .prelude && isPreludeFull }
+    /// Show the prelude "hit play" countdown: prelude selected with a full lineup
+    /// and not currently playing. Once the prelude is sounding (auto-play kicked
+    /// in, or play was pressed early) we show the normal now-playing display
+    /// instead; pausing/stopping brings the countdown (or "Play" cue) back.
+    var showsPreludeCountdown: Bool { activeSlot == .prelude && isPreludeFull && !audio.isPlaying }
+
+    /// While the prelude medley plays, the hymn number of the item currently
+    /// sounding (the medley spans Opening → Memorial → Closing piano, in order).
+    var preludePlayingNumber: Int? {
+        guard activeSlot == .prelude else { return nil }
+        let order = ServiceSlot.programmable
+        guard order.indices.contains(audio.currentItemIndex) else { return nil }
+        return slotNumbers[order[audio.currentItemIndex]]
+    }
 
     var isPlayNow: Bool { activeSlot == nil }
 
     // MARK: - Pad input
 
     func keyDigit(_ d: Int) {
+        registerActivity()
         // Typing while a non-numeric slot (prelude/postlude) is active starts a fresh Play Now.
         if let slot = activeSlot, !slot.isProgrammable {
             activeSlot = nil
@@ -136,6 +198,7 @@ final class AppModel {
     }
 
     func backspace() {
+        registerActivity()
         guard !padBuffer.isEmpty else { return }
         padBuffer.removeLast()
         selectedVersion = 1
@@ -145,6 +208,7 @@ final class AppModel {
     // MARK: - Slot selection & editing
 
     func selectSlot(_ slot: ServiceSlot) {
+        registerActivity()
         disarmAutoPlay() // any navigation cancels a pending auto-play
         if activeSlot == slot {
             // Re-tap confirms the edit (the slot button doubles as "Set"); with
@@ -176,6 +240,7 @@ final class AppModel {
 
     /// Commit the typed number into the active programmable slot ("Set Opening").
     func commitSlot() {
+        registerActivity()
         guard let slot = activeSlot, slot.isProgrammable,
               let n = Int(padBuffer), HymnCatalog.isValid(n) else { return }
         let v = HymnCatalog.hasSecondVersion(n) ? selectedVersion : 1
@@ -210,15 +275,18 @@ final class AppModel {
     /// Back out one level: discard a staged edit, exit a selected slot, or clear
     /// the keyed-in Play Now number — all the way back to an empty Play Now.
     func cancelOrExit() {
+        registerActivity()
         if isEditingSlot { cancelEdit() } else { deselect() }
     }
 
     func setPlayNowType(_ type: HymnType) {
+        registerActivity()
         playNowType = type
         loadCurrent()
     }
 
     func setVersion(_ version: Int) {
+        registerActivity()
         selectedVersion = version
         // If a committed (non-editing) slot is current, switch its tune live.
         if let slot = activeSlot, slot.isProgrammable, !isEditingSlot, let n = slotNumbers[slot] {
@@ -237,6 +305,7 @@ final class AppModel {
     @ObservationIgnored private var autoPlayTimer: Timer?
 
     func toggleAutoPlay() {
+        registerActivity()
         isAutoPlayArmed ? disarmAutoPlay() : armAutoPlay()
     }
 
@@ -270,11 +339,13 @@ final class AppModel {
     // MARK: - Transport
 
     func togglePlayPause() {
+        registerActivity()
         disarmAutoPlay() // manual interaction cancels a pending auto-play
         if audio.isPlaying { audio.pause() } else { play() }
     }
 
     func play() {
+        registerActivity()
         Task {
             let urls = await resolveCurrentURLs()
             guard !urls.isEmpty else { return }
@@ -283,7 +354,19 @@ final class AppModel {
         }
     }
 
+    /// Start the (already-loaded) prelude part-way in so it still finishes exactly
+    /// at the service start — for when setup ran late and there isn't time to play
+    /// the whole medley. Skips the amount we're past the ideal "start by" moment.
+    func playToFinishOnTime() {
+        registerActivity()
+        disarmAutoPlay()
+        let timeLeft = ServiceSchedule.nextStart(after: Date()).timeIntervalSince(Date())
+        let skip = max(0, audio.totalDuration - timeLeft)
+        audio.play(skipping: skip)
+    }
+
     func restart() {
+        registerActivity()
         disarmAutoPlay()
         audio.restart()
     }

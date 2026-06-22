@@ -14,6 +14,11 @@ final class AudioController {
     /// True while the current selection has audio loaded and ready to play.
     private(set) var hasLoadedItem = false
 
+    /// Index of the item currently sounding within the loaded queue (0-based).
+    /// For a single hymn this is always 0; for the prelude medley it advances
+    /// 0 → 1 → 2 as each hymn plays, so the UI can show the current hymn number.
+    private(set) var currentItemIndex = 0
+
     /// Total runtime of the whole loaded selection (all queued items).
     private(set) var totalDuration: TimeInterval = 0
     /// Time left until the whole loaded selection finishes (spans the full queue).
@@ -62,7 +67,15 @@ final class AudioController {
         // (USB output outranks the built-in speaker), so output reaches the PA
         // with no extra configuration.
         try? session.setCategory(.playback, mode: .default)
-        try? session.setActive(true)
+        // Activating the session can stall briefly while CoreAudio brings up the
+        // route, so keep it off the launch/first-frame path. It's also activated
+        // on demand right before playback (see `activateSession`).
+        DispatchQueue.main.async { [weak self] in self?.activateSession() }
+    }
+
+    /// Ensure the audio session is active. Idempotent and cheap when already on.
+    private func activateSession() {
+        try? AVAudioSession.sharedInstance().setActive(true)
     }
 
     // MARK: - Output routing (USB-C / PA)
@@ -117,6 +130,7 @@ final class AudioController {
         timeObserver = player.addPeriodicTimeObserver(forInterval: interval, queue: .main) { [weak self] _ in
             guard let self else { return }
             self.isPlaying = (self.player.timeControlStatus == .playing)
+            self.currentItemIndex = max(0, self.currentURLs.count - self.player.items().count)
             self.recomputeRemaining()
         }
     }
@@ -141,6 +155,7 @@ final class AudioController {
         rebuildQueue()
         hasLoadedItem = !urls.isEmpty
         isPlaying = false
+        currentItemIndex = 0
         // Reset timing; resolve per-item durations asynchronously, then publish.
         itemDurations = []
         totalDuration = 0
@@ -182,9 +197,36 @@ final class AudioController {
 
     func play() {
         guard hasLoadedItem else { return }
+        activateSession()
         // If the queue has drained (finished), rebuild before playing again.
         if player.items().isEmpty { rebuildQueue() }
         player.play()
+    }
+
+    /// Play the loaded selection starting `offset` seconds in, trimming whole
+    /// leading items and seeking into the one that straddles the offset. Used to
+    /// start a late prelude so it still finishes on time. Falls back to a normal
+    /// start if there's no per-item timing yet or nothing to trim.
+    func play(skipping offset: TimeInterval) {
+        guard hasLoadedItem else { return }
+        guard hasTiming, offset > 0 else { play(); return }
+        activateSession()
+        var into = offset
+        var startIndex = 0
+        while startIndex < itemDurations.count && into >= itemDurations[startIndex] {
+            into -= itemDurations[startIndex]
+            startIndex += 1
+        }
+        guard startIndex < currentURLs.count else { return } // skipped past the end
+        player.pause()
+        player.removeAllItems()
+        for url in currentURLs[startIndex...] {
+            player.insert(AVPlayerItem(url: url), after: nil)
+        }
+        observeEndOfLastItem()
+        player.seek(to: CMTime(seconds: into, preferredTimescale: 600)) { [weak self] _ in
+            self?.player.play()
+        }
     }
 
     func pause() {

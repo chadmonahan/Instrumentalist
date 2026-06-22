@@ -9,6 +9,11 @@ struct NowPlayingView: View {
         VStack(spacing: 12) {
             if model.showsPreludeCountdown {
                 preludeCountdown
+            } else if model.activeSlot == .prelude && model.audio.isPlaying {
+                // Prelude is sounding — show the current medley hymn like any other
+                // slot, not the countdown or "Play" cue.
+                preludeNumberDisplay
+                contextLabel
             } else {
                 numberDisplay
                 contextLabel
@@ -41,6 +46,18 @@ struct NowPlayingView: View {
         }
     }
 
+    /// The big number for the prelude medley while it plays — the hymn currently
+    /// sounding. No version toggle (the medley uses each slot's chosen tune).
+    private var preludeNumberDisplay: some View {
+        Text(model.preludePlayingNumber.map(String.init) ?? "—")
+            .font(.system(size: 120, weight: .heavy, design: .rounded))
+            .foregroundStyle(.white)
+            .lineLimit(1)
+            .minimumScaleFactor(0.5)
+            .contentTransition(.numericText())
+            .animation(.snappy, value: model.preludePlayingNumber)
+    }
+
     private var contextLabel: some View {
         Text(contextText)
             .font(.system(size: 22, weight: .semibold, design: .rounded))
@@ -58,30 +75,82 @@ struct NowPlayingView: View {
             let secs = startBy.timeIntervalSince(now)
             let ready = duration > 0
             let armed = model.isAutoPlayArmed
+            // Past the start-by moment there's nothing left to count down to (or
+            // arm) for today, so drop the countdown UI entirely and fall back to
+            // the plain Prelude display. It returns when counting toward the next
+            // day's start.
+            let active = !ready || secs > 0
 
             VStack(spacing: 4) {
-                Text((!ready || secs > 0 ? (armed ? "AUTO-PLAY IN" : "PLAY IN") : "PLAY"))
-                    .font(.system(size: 22, weight: .bold, design: .rounded))
-                    .foregroundStyle(armed ? Theme.ready : .white.opacity(0.55))
-                Text(!ready ? "—" : (secs > 0 ? countdownString(secs) : "NOW"))
-                    .font(.system(size: 84, weight: .heavy, design: .rounded))
-                    .monospacedDigit()
-                    .foregroundStyle(armed || (ready && secs <= 0) ? Theme.ready : .white)
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.5)
-                    .contentTransition(.numericText())
-                Text(ready
-                     ? "start \(clock(startBy))  ·  ends \(clock(target))"
-                     : "calculating prelude length…")
-                    .font(.system(size: 17, weight: .semibold, design: .rounded))
-                    .foregroundStyle(.white.opacity(0.55))
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.6)
-                autoPlayButton(enabled: ready)
-                    .padding(.top, 6)
+                if active {
+                    Text(armed ? "AUTO-PLAY IN" : "PLAY IN")
+                        .font(.system(size: 22, weight: .bold, design: .rounded))
+                        .foregroundStyle(armed ? Theme.ready : .white.opacity(0.55))
+                    Text(!ready ? "—" : countdownString(secs))
+                        .font(.system(size: 84, weight: .heavy, design: .rounded))
+                        .monospacedDigit()
+                        .foregroundStyle(armed ? Theme.ready : .white)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.5)
+                        .contentTransition(.numericText())
+                    Text(ready
+                         ? "start \(clock(startBy))  ·  ends \(clock(target))"
+                         : "calculating prelude length…")
+                        .font(.system(size: 17, weight: .semibold, design: .rounded))
+                        .foregroundStyle(.white.opacity(0.55))
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.6)
+                    autoPlayButton(enabled: ready)
+                        .padding(.top, 6)
+                } else {
+                    // It's go-time (past start-by): too late to play the medley in
+                    // full before the service. Offer both choices — play it whole
+                    // (runs past the start) or trim the front so it ends on time.
+                    lateStartChooser(target: target)
+                }
             }
             .animation(.snappy, value: armed)
         }
+    }
+
+    /// Go-time chooser (past start-by): the medley can't play in full before the
+    /// service, so offer both options. "Play full" runs the whole thing (ending
+    /// after the service starts); "End on time" trims the front to finish exactly
+    /// at `target`.
+    private func lateStartChooser(target: Date) -> some View {
+        VStack(spacing: 12) {
+            Text("Past start • service \(clock(target))")
+                .font(.system(size: 22, weight: .bold, design: .rounded))
+                .foregroundStyle(Theme.ready)
+            Text("Not enough time for the full prelude")
+                .font(.system(size: 17, weight: .semibold, design: .rounded))
+                .foregroundStyle(.white.opacity(0.55))
+            HStack(spacing: 12) {
+                chooserButton(title: "Play full", system: "play.fill", filled: false) {
+                    model.play()
+                }
+                chooserButton(title: "End on time", system: "forward.fill", filled: true) {
+                    model.playToFinishOnTime()
+                }
+            }
+            .padding(.top, 6)
+        }
+    }
+
+    private func chooserButton(title: String, system: String, filled: Bool,
+                               action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            HStack(spacing: 8) {
+                Image(systemName: system)
+                Text(title)
+            }
+            .font(.system(size: 18, weight: .bold, design: .rounded))
+            .foregroundStyle(filled ? .black : .white)
+            .padding(.vertical, 11)
+            .padding(.horizontal, 22)
+            .background(filled ? Theme.ready : Theme.idleFill, in: Capsule())
+        }
+        .buttonStyle(.plain)
     }
 
     private func autoPlayButton(enabled: Bool) -> some View {

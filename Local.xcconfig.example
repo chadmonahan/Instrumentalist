@@ -1,0 +1,10 @@
+// Template for the local, machine-specific signing config.
+//
+// Copy this to `Local.xcconfig` (which is gitignored) and set your Apple
+// Developer team id. The project references Local.xcconfig for both Debug and
+// Release (see project.yml), so the build needs it to sign.
+//
+//   cp Local.xcconfig.example Local.xcconfig
+//
+DEVELOPMENT_TEAM = YOUR_APPLE_TEAM_ID
+CODE_SIGN_STYLE = Automatic

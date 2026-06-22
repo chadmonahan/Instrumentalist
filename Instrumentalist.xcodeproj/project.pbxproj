@@ -1,0 +1,466 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		016EF32E7E891957BAB9F731 /* SlotColumnView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F561A2C739CD21476D9BC2B4 /* SlotColumnView.swift */; };
+		0708CE3528C95D21F16A05B7 /* SystemVolume.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54F43C201D7CC86AB0A6877F /* SystemVolume.swift */; };
+		1B914A0CD4D8BCDF990E9CA2 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BC40ADCF1F0AA9BC851BEAA /* ContentView.swift */; };
+		2824B72B25EB479CA30D0768 /* VolumeSliderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCA240B6F92124988898DD63 /* VolumeSliderView.swift */; };
+		3E5AD9A74AF3CB1AD572603A /* hdhymn80-post.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 1A69366461A3C0B1839693E6 /* hdhymn80-post.mp3 */; };
+		48AA2190148A8B5F05BDE306 /* AzureConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C392D1B25D86EFA3A5C6871 /* AzureConfig.swift */; };
+		4DC77080411F7FA5454EA9A7 /* AppModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C9C41F6A9FF5ADDA91AB627 /* AppModel.swift */; };
+		52E5A6B08B8C013B80F7C5D6 /* AppIcon.icon in Resources */ = {isa = PBXBuildFile; fileRef = BDF642C1EB6DCE4AB715F972 /* AppIcon.icon */; };
+		62F2AEE4AD57E849BE237933 /* PostludeLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5EB185E57F9DF8EEB5C18BAF /* PostludeLibrary.swift */; };
+		6531D147DE4CA4C6C20B6A7E /* InstrumentalistApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = E3337583A50A32FD6C478BA8 /* InstrumentalistApp.swift */; };
+		66B43207051ED90FA1EFB827 /* Hymn.swift in Sources */ = {isa = PBXBuildFile; fileRef = D6A355FC923F98630CF1EEA0 /* Hymn.swift */; };
+		6D333E517C052850D2D9C016 /* SlotButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = F016A6923DB5ADE5CDF82F08 /* SlotButton.swift */; };
+		7A20E0317CEFF6B770871A80 /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAC761043B245A4AE252EAFC /* Theme.swift */; };
+		7AAFDE7CC6DF388C1FB7C056 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C01DDB13571E508C815E8908 /* Assets.xcassets */; };
+		88F16251C07969C490D83B9F /* NowPlayingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E4A8160DA836F13863361CD /* NowPlayingView.swift */; };
+		95F446FB15805F1A209AF3BC /* HymnCatalog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0198A84B999E49B4E59CF8E7 /* HymnCatalog.swift */; };
+		96A605FBE2B9943415F63DEB /* ServiceSchedule.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8F52466F822C0B81F4E7DF1 /* ServiceSchedule.swift */; };
+		96C2F476C72B172151315177 /* AudioController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE95A31F2F1D4B59F29952C0 /* AudioController.swift */; };
+		D0DDFA79CE1DAA318FF1F9D4 /* NumberPadView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D56830500FD270E82496447 /* NumberPadView.swift */; };
+		DAF7F80E6C3A47251ADBD078 /* hdhymn220-post.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 0CB572AAAC604975C7BF191C /* hdhymn220-post.mp3 */; };
+		DC43CAAEE54D1923A7277F54 /* ServiceSlot.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C48CB910E8A61790418EE5A /* ServiceSlot.swift */; };
+		DD6483BF51F5EF996598A1D8 /* hdhymn215-post.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 171DFF0BC6EB8E8435614B9B /* hdhymn215-post.mp3 */; };
+		F96D7C75F7209B69B7800874 /* HymnStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5F81CD92E14D6D98FE3D086 /* HymnStore.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		0198A84B999E49B4E59CF8E7 /* HymnCatalog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HymnCatalog.swift; sourceTree = "<group>"; };
+		0CB572AAAC604975C7BF191C /* hdhymn220-post.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "hdhymn220-post.mp3"; sourceTree = "<group>"; };
+		171DFF0BC6EB8E8435614B9B /* hdhymn215-post.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "hdhymn215-post.mp3"; sourceTree = "<group>"; };
+		1A69366461A3C0B1839693E6 /* hdhymn80-post.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "hdhymn80-post.mp3"; sourceTree = "<group>"; };
+		1C392D1B25D86EFA3A5C6871 /* AzureConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AzureConfig.swift; sourceTree = "<group>"; };
+		1C48CB910E8A61790418EE5A /* ServiceSlot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServiceSlot.swift; sourceTree = "<group>"; };
+		1E4A8160DA836F13863361CD /* NowPlayingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NowPlayingView.swift; sourceTree = "<group>"; };
+		3D56830500FD270E82496447 /* NumberPadView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NumberPadView.swift; sourceTree = "<group>"; };
+		485EF226A718F476A6438FEC /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		54F43C201D7CC86AB0A6877F /* SystemVolume.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SystemVolume.swift; sourceTree = "<group>"; };
+		5EB185E57F9DF8EEB5C18BAF /* PostludeLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostludeLibrary.swift; sourceTree = "<group>"; };
+		6B5018D168717768598B5117 /* Instrumentalist.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = Instrumentalist.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		7BC40ADCF1F0AA9BC851BEAA /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		8C9C41F6A9FF5ADDA91AB627 /* AppModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppModel.swift; sourceTree = "<group>"; };
+		A5F81CD92E14D6D98FE3D086 /* HymnStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HymnStore.swift; sourceTree = "<group>"; };
+		BCA240B6F92124988898DD63 /* VolumeSliderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VolumeSliderView.swift; sourceTree = "<group>"; };
+		BDF642C1EB6DCE4AB715F972 /* AppIcon.icon */ = {isa = PBXFileReference; lastKnownFileType = wrapper.icon; path = AppIcon.icon; sourceTree = "<group>"; };
+		BE95A31F2F1D4B59F29952C0 /* AudioController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioController.swift; sourceTree = "<group>"; };
+		C01DDB13571E508C815E8908 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		D6A355FC923F98630CF1EEA0 /* Hymn.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Hymn.swift; sourceTree = "<group>"; };
+		E3337583A50A32FD6C478BA8 /* InstrumentalistApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstrumentalistApp.swift; sourceTree = "<group>"; };
+		E8F52466F822C0B81F4E7DF1 /* ServiceSchedule.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServiceSchedule.swift; sourceTree = "<group>"; };
+		EAC761043B245A4AE252EAFC /* Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Theme.swift; sourceTree = "<group>"; };
+		F016A6923DB5ADE5CDF82F08 /* SlotButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SlotButton.swift; sourceTree = "<group>"; };
+		F561A2C739CD21476D9BC2B4 /* SlotColumnView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SlotColumnView.swift; sourceTree = "<group>"; };
+		"TEMP_51AE1C82-2698-44D7-B719-F696036E534A" /* Local.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Local.xcconfig; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		1094DF8DB2733DAE345F770E /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				BDF642C1EB6DCE4AB715F972 /* AppIcon.icon */,
+				C01DDB13571E508C815E8908 /* Assets.xcassets */,
+				485EF226A718F476A6438FEC /* Info.plist */,
+				E7A87B2243F8458A2C85FC47 /* Postludes */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		1D5D1F48AFA95CE45E873C79 = {
+			isa = PBXGroup;
+			children = (
+				E150A51C7E6FE70CF4CA7B5A /* Instrumentalist */,
+				24A2BC0893E911E0746266E7 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		1F346524438ECCBD2BC98C8A /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				7BC40ADCF1F0AA9BC851BEAA /* ContentView.swift */,
+				1E4A8160DA836F13863361CD /* NowPlayingView.swift */,
+				3D56830500FD270E82496447 /* NumberPadView.swift */,
+				F016A6923DB5ADE5CDF82F08 /* SlotButton.swift */,
+				F561A2C739CD21476D9BC2B4 /* SlotColumnView.swift */,
+				EAC761043B245A4AE252EAFC /* Theme.swift */,
+				BCA240B6F92124988898DD63 /* VolumeSliderView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		24A2BC0893E911E0746266E7 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				6B5018D168717768598B5117 /* Instrumentalist.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		3BB823D99BC0B1C236B7E5F1 /* State */ = {
+			isa = PBXGroup;
+			children = (
+				8C9C41F6A9FF5ADDA91AB627 /* AppModel.swift */,
+			);
+			path = State;
+			sourceTree = "<group>";
+		};
+		40D925A23817684AC23E7BD5 /* Config */ = {
+			isa = PBXGroup;
+			children = (
+				1C392D1B25D86EFA3A5C6871 /* AzureConfig.swift */,
+				E8F52466F822C0B81F4E7DF1 /* ServiceSchedule.swift */,
+			);
+			path = Config;
+			sourceTree = "<group>";
+		};
+		567376CFBF86FA03F3F02CE2 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				BE95A31F2F1D4B59F29952C0 /* AudioController.swift */,
+				A5F81CD92E14D6D98FE3D086 /* HymnStore.swift */,
+				5EB185E57F9DF8EEB5C18BAF /* PostludeLibrary.swift */,
+				54F43C201D7CC86AB0A6877F /* SystemVolume.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		AE9F1F2118EB16141F397B27 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				D6A355FC923F98630CF1EEA0 /* Hymn.swift */,
+				0198A84B999E49B4E59CF8E7 /* HymnCatalog.swift */,
+				1C48CB910E8A61790418EE5A /* ServiceSlot.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		E150A51C7E6FE70CF4CA7B5A /* Instrumentalist */ = {
+			isa = PBXGroup;
+			children = (
+				E3337583A50A32FD6C478BA8 /* InstrumentalistApp.swift */,
+				40D925A23817684AC23E7BD5 /* Config */,
+				AE9F1F2118EB16141F397B27 /* Models */,
+				1094DF8DB2733DAE345F770E /* Resources */,
+				567376CFBF86FA03F3F02CE2 /* Services */,
+				3BB823D99BC0B1C236B7E5F1 /* State */,
+				1F346524438ECCBD2BC98C8A /* Views */,
+			);
+			path = Instrumentalist;
+			sourceTree = "<group>";
+		};
+		E7A87B2243F8458A2C85FC47 /* Postludes */ = {
+			isa = PBXGroup;
+			children = (
+				1A69366461A3C0B1839693E6 /* hdhymn80-post.mp3 */,
+				171DFF0BC6EB8E8435614B9B /* hdhymn215-post.mp3 */,
+				0CB572AAAC604975C7BF191C /* hdhymn220-post.mp3 */,
+			);
+			path = Postludes;
+			sourceTree = "<group>";
+		};
+		"TEMP_525FEAC6-883D-4E51-907E-ADC250377DA5" /* Instrumentalist */ = {
+			isa = PBXGroup;
+			children = (
+				"TEMP_51AE1C82-2698-44D7-B719-F696036E534A" /* Local.xcconfig */,
+			);
+			path = Instrumentalist;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		5859357D63665D31E912C02F /* Instrumentalist */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = D3C729267B9789225ACD62C2 /* Build configuration list for PBXNativeTarget "Instrumentalist" */;
+			buildPhases = (
+				4F5E8226164FC0AB25828648 /* Sources */,
+				A921895503CE25C5D0027B53 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Instrumentalist;
+			packageProductDependencies = (
+			);
+			productName = Instrumentalist;
+			productReference = 6B5018D168717768598B5117 /* Instrumentalist.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		BCDB2F522D0F42F599E3B223 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1430;
+				TargetAttributes = {
+					5859357D63665D31E912C02F = {
+						DevelopmentTeam = TF2E733E27;
+						ProvisioningStyle = Automatic;
+					};
+				};
+			};
+			buildConfigurationList = A13CDC1739D9BDBFD6A8D9E0 /* Build configuration list for PBXProject "Instrumentalist" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = 1D5D1F48AFA95CE45E873C79;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 24A2BC0893E911E0746266E7 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				5859357D63665D31E912C02F /* Instrumentalist */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		A921895503CE25C5D0027B53 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				52E5A6B08B8C013B80F7C5D6 /* AppIcon.icon in Resources */,
+				7AAFDE7CC6DF388C1FB7C056 /* Assets.xcassets in Resources */,
+				DD6483BF51F5EF996598A1D8 /* hdhymn215-post.mp3 in Resources */,
+				DAF7F80E6C3A47251ADBD078 /* hdhymn220-post.mp3 in Resources */,
+				3E5AD9A74AF3CB1AD572603A /* hdhymn80-post.mp3 in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		4F5E8226164FC0AB25828648 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4DC77080411F7FA5454EA9A7 /* AppModel.swift in Sources */,
+				96C2F476C72B172151315177 /* AudioController.swift in Sources */,
+				48AA2190148A8B5F05BDE306 /* AzureConfig.swift in Sources */,
+				1B914A0CD4D8BCDF990E9CA2 /* ContentView.swift in Sources */,
+				66B43207051ED90FA1EFB827 /* Hymn.swift in Sources */,
+				95F446FB15805F1A209AF3BC /* HymnCatalog.swift in Sources */,
+				F96D7C75F7209B69B7800874 /* HymnStore.swift in Sources */,
+				6531D147DE4CA4C6C20B6A7E /* InstrumentalistApp.swift in Sources */,
+				88F16251C07969C490D83B9F /* NowPlayingView.swift in Sources */,
+				D0DDFA79CE1DAA318FF1F9D4 /* NumberPadView.swift in Sources */,
+				62F2AEE4AD57E849BE237933 /* PostludeLibrary.swift in Sources */,
+				96A605FBE2B9943415F63DEB /* ServiceSchedule.swift in Sources */,
+				DC43CAAEE54D1923A7277F54 /* ServiceSlot.swift in Sources */,
+				6D333E517C052850D2D9C016 /* SlotButton.swift in Sources */,
+				016EF32E7E891957BAB9F731 /* SlotColumnView.swift in Sources */,
+				0708CE3528C95D21F16A05B7 /* SystemVolume.swift in Sources */,
+				7A20E0317CEFF6B770871A80 /* Theme.swift in Sources */,
+				2824B72B25EB479CA30D0768 /* VolumeSliderView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		80DD0F2224BC079411DAD6C6 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = "TEMP_51AE1C82-2698-44D7-B719-F696036E534A" /* Local.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = Instrumentalist/Resources/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.chadmonahan.instrumentalist;
+				PRODUCT_NAME = Hymns;
+				SDKROOT = iphoneos;
+				SUPPORTS_MACCATALYST = NO;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		81033DA0CF5535CA24FB302B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MARKETING_VERSION = 0.1.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.10;
+			};
+			name = Release;
+		};
+		D485E47DF9B8F74797729BD0 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MARKETING_VERSION = 0.1.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.10;
+			};
+			name = Debug;
+		};
+		F6FE3E72179496366BE30D3F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = "TEMP_51AE1C82-2698-44D7-B719-F696036E534A" /* Local.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = Instrumentalist/Resources/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.chadmonahan.instrumentalist;
+				PRODUCT_NAME = Hymns;
+				SDKROOT = iphoneos;
+				SUPPORTS_MACCATALYST = NO;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		A13CDC1739D9BDBFD6A8D9E0 /* Build configuration list for PBXProject "Instrumentalist" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D485E47DF9B8F74797729BD0 /* Debug */,
+				81033DA0CF5535CA24FB302B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		D3C729267B9789225ACD62C2 /* Build configuration list for PBXNativeTarget "Instrumentalist" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F6FE3E72179496366BE30D3F /* Debug */,
+				80DD0F2224BC079411DAD6C6 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = BCDB2F522D0F42F599E3B223 /* Project object */;
+}
